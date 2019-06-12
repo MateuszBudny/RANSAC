@@ -17,6 +17,12 @@ namespace RANSAC {
             CalculatePairs();
         }
 
+        public AffineRegionsPairs(List<AffineRegionsPair> pairs) {
+            Pairs = pairs;
+            FirstImageRegions = null;
+            SecondImageRegions = null;
+        }
+
         private void CalculatePairs() {
             List<AffineRegionsPair> pairsOfFirstImage = GetPairsOfOneSide(FirstImageRegions, SecondImageRegions);
             List<AffineRegionsPair> pairsOfSecondImage = GetPairsOfOneSide(SecondImageRegions, FirstImageRegions);
@@ -33,12 +39,12 @@ namespace RANSAC {
                 AffineRegion mostSimilarRegion = null;
                 foreach (AffineRegion c in compareToRegions) {
                     double similarity = m.Params.GetCosineSimilarity(c.Params);
-                    if (similarity > bestSimilarity && similarity > 0.95) { // heuristic
+                    if (similarity > bestSimilarity /*&& similarity > 0.95*/) { // heuristic
                         bestSimilarity = similarity;
                         mostSimilarRegion = c;
                     }
                 }
-                pairsOfMainSide.Add(new AffineRegionsPair(m, mostSimilarRegion));
+                pairsOfMainSide.Add(new AffineRegionsPair(m, mostSimilarRegion, bestSimilarity));
             }
 
             return pairsOfMainSide;
@@ -61,6 +67,15 @@ namespace RANSAC {
 
         public AffineRegionsPair GetRandom() {
             return Pairs[rand.Next(Pairs.Count)];
+        }
+
+        public AffineRegionsPairs GetPairsWithHighSimilarity(double minSmilarity) {
+            return new AffineRegionsPairs(Pairs.FindAll(p => p.Similarity >= minSmilarity));
+        }
+
+        public List<(Point, Point)> GetPairsAsPointsTuples() {
+            return Pairs.Select(p => (new Point((int)p.FirstImageRegion.X, (int)p.FirstImageRegion.Y),
+                new Point((int)p.SecondImageRegion.X, (int)p.SecondImageRegion.Y))).ToList();
         }
     }
 }

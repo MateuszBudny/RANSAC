@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace RANSAC {
-    class AffineTransformationMatrix : Transformation {
+    class AffineTransformation : Transformation {
 
-        public AffineTransformationMatrix() {}
+        public AffineTransformation() {}
 
         public override List<AffineRegionsPair> GetRandomSample(AffineRegionsPairs pairs) {
             return GetRandomSample(pairs, 3);
@@ -68,7 +68,10 @@ namespace RANSAC {
 
             Vector<double> transformedVector = model * baseVector;
 
-            return new Point((int) transformedVector[0], (int) transformedVector[1]);
+            int u = (int)transformedVector[0];
+            int v = (int)transformedVector[1];
+
+            return new Point(u, v);
         }
     }
 }

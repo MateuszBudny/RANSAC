@@ -15,8 +15,10 @@ namespace RANSAC {
             Start = 0,
             AllLinesOneByOne = 1,
             AllLinesImmediately = 2,
-            ProperLinesOneByOne = 3,
-            ProperLinesImmediately = 4
+            ProperAffineLinesOneByOne = 3,
+            ProperAffineLinesImmediately = 4,
+            ProperHomographyLinesOneByOne = 5,
+            ProperHomographyLinesImmediately = 6
         };
 
         private ImagesDisplayState state = ImagesDisplayState.Start;
@@ -28,24 +30,26 @@ namespace RANSAC {
         int WidthImageSize => (int) (firstImage.Width * imageScale);
         int HeightImageSize => (int) (firstImage.Height * imageScale);
         List<(Point, Point)> lines;
-        List<(Point, Point)> properLines;
-        List<(Point, Point)> linesToDraw;
+        List<(Point, Point)> properAffineLines;
+        List<(Point, Point)> properHomographyLines;
         Random rand = new Random();
         List<(Point, Point)>.Enumerator linesEnumerator;
-        List<(Point, Point)>.Enumerator properLinesEnumerator;
+        List<(Point, Point)>.Enumerator properAffineLinesEnumerator;
+        List<(Point, Point)>.Enumerator properHomographyLinesEnumerator;
         const double SCALE_CHANGE = 0.1d;
 
-        public ImagesDisplay(Image firstImage, Image secondImage, List<(Point, Point)> lines, List<(Point, Point)> properLines) {
+        public ImagesDisplay(Image firstImage, Image secondImage, List<(Point, Point)> lines, List<(Point, Point)> properAffineLines, List<(Point, Point)> properHomographyLines) {
             WindowState = FormWindowState.Maximized;
             InitializeComponent();
             this.firstImage = firstImage;
             this.secondImage = secondImage;
-            
+
             this.lines = lines;
-            this.properLines = properLines;
+            this.properAffineLines = properAffineLines;
+            this.properHomographyLines = properHomographyLines;
             linesEnumerator = lines.GetEnumerator();
-            properLinesEnumerator = properLines.GetEnumerator();
-            linesToDraw = new List<(Point, Point)>();
+            properAffineLinesEnumerator = properAffineLines.GetEnumerator();
+            properHomographyLinesEnumerator = properHomographyLines.GetEnumerator();
         }
 
         private void ImagesDisplay_Load(object sender, EventArgs e) {
@@ -75,15 +79,27 @@ namespace RANSAC {
                         DrawLine(line, e.Graphics);
                     }
                     break;
-                case ImagesDisplayState.ProperLinesOneByOne:
-                    if (properLinesEnumerator.MoveNext()) {
-                        DrawLine(properLinesEnumerator.Current, e.Graphics);
+                case ImagesDisplayState.ProperAffineLinesOneByOne:
+                    if (properAffineLinesEnumerator.MoveNext()) {
+                        DrawLine(properAffineLinesEnumerator.Current, e.Graphics);
                     } else {
                         state++;
                     }
                     break;
-                case ImagesDisplayState.ProperLinesImmediately:
-                    foreach ((Point, Point) line in properLines) {
+                case ImagesDisplayState.ProperAffineLinesImmediately:
+                    foreach ((Point, Point) line in properAffineLines) {
+                        DrawLine(line, e.Graphics);
+                    }
+                    break;
+                case ImagesDisplayState.ProperHomographyLinesOneByOne:
+                    if (properHomographyLinesEnumerator.MoveNext()) {
+                        DrawLine(properHomographyLinesEnumerator.Current, e.Graphics);
+                    } else {
+                        state++;
+                    }
+                    break;
+                case ImagesDisplayState.ProperHomographyLinesImmediately:
+                    foreach ((Point, Point) line in properHomographyLines) {
                         DrawLine(line, e.Graphics);
                     }
                     break;

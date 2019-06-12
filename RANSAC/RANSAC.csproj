@@ -56,7 +56,8 @@
     <Compile Include="AffineRegion.cs" />
     <Compile Include="AffineRegionsPair.cs" />
     <Compile Include="AffineRegionsPairs.cs" />
-    <Compile Include="AffineTransformationMatrix.cs" />
+    <Compile Include="AffineTransformation.cs" />
+    <Compile Include="HomographyTransformation.cs" />
     <Compile Include="ImagesDisplay.cs">
       <SubType>Form</SubType>
     </Compile>
