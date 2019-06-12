@@ -9,6 +9,7 @@ namespace RANSAC {
         public List<AffineRegion> FirstImageRegions { get; set; }
         public List<AffineRegion> SecondImageRegions { get; set; }
         public List<AffineRegionsPair> Pairs { get; set; }
+        private Random rand = new Random();
 
         public AffineRegionsPairs(string pathToFirstImage, string pathToSecondImage) {
             FirstImageRegions = Loader.GetAffineRegions(pathToFirstImage);
@@ -32,7 +33,7 @@ namespace RANSAC {
                 AffineRegion mostSimilarRegion = null;
                 foreach (AffineRegion c in compareToRegions) {
                     double similarity = m.Params.GetCosineSimilarity(c.Params);
-                    if (similarity > bestSimilarity/* && similarity > 0.98*/) { // heuristic
+                    if (similarity > bestSimilarity && similarity > 0.95) { // heuristic
                         bestSimilarity = similarity;
                         mostSimilarRegion = c;
                     }
@@ -56,6 +57,10 @@ namespace RANSAC {
             }
 
             return mutualPairs;
+        }
+
+        public AffineRegionsPair GetRandom() {
+            return Pairs[rand.Next(Pairs.Count)];
         }
     }
 }

@@ -5,14 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace RANSAC {
-    class AffineRegion {
-        public double X { get; set; }
-        public double Y { get; set; }
+    class AffineRegion : Point {
+
         public List<int> Params { get; set; }
 
-        public AffineRegion(double x, double y, List<int> parameters) {
-            X = x;
-            Y = y;
+        public AffineRegion(int x, int y, List<int> parameters) : base(x, y) {
             Params = parameters;
         }
     }

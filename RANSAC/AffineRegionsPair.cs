@@ -13,5 +13,12 @@ namespace RANSAC {
             FirstImageRegion = firstImageRegion;
             SecondImageRegion = secondImageRegion;
         }
+
+        public (int x, int y, int u, int v) GetPairsCoordinates() {
+            (int x, int y) = FirstImageRegion.GetPairCoordinates();
+            (int u, int v) = SecondImageRegion.GetPairCoordinates();
+
+            return (x, y, u, v);
+        }
     }
 }

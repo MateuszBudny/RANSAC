@@ -56,6 +56,7 @@
     <Compile Include="AffineRegion.cs" />
     <Compile Include="AffineRegionsPair.cs" />
     <Compile Include="AffineRegionsPairs.cs" />
+    <Compile Include="AffineTransformationMatrix.cs" />
     <Compile Include="ImagesDisplay.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -63,9 +64,12 @@
       <DependentUpon>ImagesDisplay.cs</DependentUpon>
     </Compile>
     <Compile Include="Loader.cs" />
+    <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RANSAC.cs" />
     <Compile Include="Tools.cs" />
+    <Compile Include="Transformation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

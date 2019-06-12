@@ -10,6 +10,16 @@ using System.Windows.Forms;
 
 namespace RANSAC {
     public partial class ImagesDisplay : Form {
+
+        private enum ImagesDisplayState {
+            Start = 0,
+            AllLinesOneByOne = 1,
+            AllLinesImmediately = 2,
+            ProperLinesOneByOne = 3,
+            ProperLinesImmediately = 4
+        };
+
+        private ImagesDisplayState state = ImagesDisplayState.Start;
         Image firstImage;
         Image secondImage;
         Rectangle firstImageRect;
@@ -18,20 +28,23 @@ namespace RANSAC {
         int WidthImageSize => (int) (firstImage.Width * imageScale);
         int HeightImageSize => (int) (firstImage.Height * imageScale);
         List<(Point, Point)> lines;
+        List<(Point, Point)> properLines;
         List<(Point, Point)> linesToDraw;
         Random rand = new Random();
         List<(Point, Point)>.Enumerator linesEnumerator;
+        List<(Point, Point)>.Enumerator properLinesEnumerator;
         const double SCALE_CHANGE = 0.1d;
-        bool endOfLinesEnumerator = false;
 
-        public ImagesDisplay(Image firstImage, Image secondImage, List<(Point, Point)> lines) {
+        public ImagesDisplay(Image firstImage, Image secondImage, List<(Point, Point)> lines, List<(Point, Point)> properLines) {
             WindowState = FormWindowState.Maximized;
             InitializeComponent();
             this.firstImage = firstImage;
             this.secondImage = secondImage;
             
             this.lines = lines;
+            this.properLines = properLines;
             linesEnumerator = lines.GetEnumerator();
+            properLinesEnumerator = properLines.GetEnumerator();
             linesToDraw = new List<(Point, Point)>();
         }
 
@@ -46,32 +59,46 @@ namespace RANSAC {
             e.Graphics.DrawImage(firstImage, firstImageRect);
             e.Graphics.DrawImage(secondImage, secondImageRect);
 
-            if(!endOfLinesEnumerator) {
-                DrawLine(linesEnumerator.Current, e.Graphics);
-            } else {
-                foreach((Point, Point) line in lines) {
-                    DrawLine(line, e.Graphics);
-                }
+            switch(state) {
+                case ImagesDisplayState.Start:
+                    state++;
+                    break;
+                case ImagesDisplayState.AllLinesOneByOne:
+                    if (linesEnumerator.MoveNext()) {
+                        DrawLine(linesEnumerator.Current, e.Graphics);
+                    } else {
+                        state++;
+                    }
+                    break;
+                case ImagesDisplayState.AllLinesImmediately:
+                    foreach ((Point, Point) line in lines) {
+                        DrawLine(line, e.Graphics);
+                    }
+                    break;
+                case ImagesDisplayState.ProperLinesOneByOne:
+                    if (properLinesEnumerator.MoveNext()) {
+                        DrawLine(properLinesEnumerator.Current, e.Graphics);
+                    } else {
+                        state++;
+                    }
+                    break;
+                case ImagesDisplayState.ProperLinesImmediately:
+                    foreach ((Point, Point) line in properLines) {
+                        DrawLine(line, e.Graphics);
+                    }
+                    break;
             }
         }
 
         private void DrawLine((Point, Point) line, Graphics graphics) {
             Pen pen = new Pen(Color.FromArgb(255, rand.Next(256), rand.Next(256), rand.Next(256)));
-            Point firstPoint = new Point((int)(line.Item1.X * imageScale), (int)(line.Item1.Y * imageScale));
-            Point secondPoint = new Point((int)(line.Item2.X * imageScale) + WidthImageSize, (int)(line.Item2.Y * imageScale));
+            System.Drawing.Point firstPoint = new System.Drawing.Point((int)(line.Item1.X * imageScale), (int)(line.Item1.Y * imageScale));
+            System.Drawing.Point secondPoint = new System.Drawing.Point((int)(line.Item2.X * imageScale) + WidthImageSize, (int)(line.Item2.Y * imageScale));
             graphics.DrawLine(pen, firstPoint, secondPoint);
         }
 
         private void ImagesDisplay_MouseDown(object sender, MouseEventArgs e) {
-            if(!linesEnumerator.MoveNext()) {
-                if(!endOfLinesEnumerator) {
-                    endOfLinesEnumerator = true;
-                    Invalidate();
-                }
-            } else {
-                linesToDraw.Add(linesEnumerator.Current);
-                Invalidate();
-            }
+            Invalidate();
         }
 
         private void ImagesDisplay_KeyDown(object sender, KeyEventArgs e) {
@@ -81,8 +108,8 @@ namespace RANSAC {
             } else if(e.KeyCode == Keys.Subtract) {
                 imageScale -= SCALE_CHANGE;
                 Invalidate();
-            } else if(e.KeyCode == Keys.S) {
-                endOfLinesEnumerator = true;
+            } else if (e.KeyCode == Keys.S) {
+                state++;
                 Invalidate();
             }
         }

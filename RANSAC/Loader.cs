@@ -14,8 +14,8 @@ namespace RANSAC {
             lines = lines.Skip(2).ToArray();
             foreach(string line in lines) {
                 string[] splittedLine = line.Split(' ');
-                double x = double.Parse(splittedLine[0], CultureInfo.InvariantCulture);
-                double y = double.Parse(splittedLine[1], CultureInfo.InvariantCulture);
+                int x = (int) double.Parse(splittedLine[0], CultureInfo.InvariantCulture);
+                int y = (int) double.Parse(splittedLine[1], CultureInfo.InvariantCulture);
                 List<int> parameters = new List<int>();
                 for(int i = 5; i < 133; i++) {
                     parameters.Add(int.Parse(splittedLine[i]));
